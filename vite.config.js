@@ -7,6 +7,8 @@ export default defineConfig({
       input: {
         main: resolve(__dirname, 'index.html'),
         dashboard: resolve(__dirname, 'dashboard.html'),
+        courses: resolve(__dirname, 'courses.html'),
+        quiz_editor: resolve(__dirname, 'quiz_editor.html'),
       },
     },
   },

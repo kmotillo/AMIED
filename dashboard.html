@@ -20,9 +20,13 @@
       <span class="navbar-toggler-icon"></span>
     </button>
     <div class="navbar-nav w-100 d-flex flex-row justify-content-end px-3">
-      <div class="nav-item text-nowrap">
-        <button class="nav-link px-3 bg-transparent border-0" id="logout-btn">Cerrar Sesión</button>
-      </div>
+        <div class="d-flex align-items-center">
+          <button class="btn btn-outline-light me-3" id="settingsBtn" title="Configuración">
+            <i class="bi bi-gear-fill"></i> Ajustes IA
+          </button>
+          <span class="text-light me-3"><i class="bi bi-person-circle"></i> Admin</span>
+          <button class="btn btn-outline-light btn-sm" id="logout-btn">Cerrar Sesión</button>
+        </div>
     </div>
   </header>
 
@@ -165,6 +169,52 @@
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cerrar</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: Delete User -->
+  <div class="modal fade" id="userDeleteModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title text-danger"><i class="bi bi-exclamation-triangle-fill me-2"></i>Eliminar Usuario</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <input type="hidden" id="deleteUserId">
+          <p>¿Estás completamente seguro de que deseas eliminar a <strong id="deleteUserName"></strong>?</p>
+          <div class="alert alert-danger">
+            <strong>¡Atención!</strong> Esta acción es irreversible. Se eliminará su acceso y todo su historial de actividad, progreso, medallas y evaluaciones.
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-danger" id="userDeleteBtn">Sí, Eliminar Permanentemente</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: App Settings -->
+  <div class="modal fade" id="settingsModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-gear-fill me-2"></i>Ajustes de la Plataforma</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="geminiApiKey" class="form-label">Google Gemini API Key (Tutor Virtual)</label>
+            <input type="password" class="form-control" id="geminiApiKey" placeholder="AIzaSy...">
+            <div class="form-text">Esta clave será utilizada por la aplicación móvil para habilitar el tutor de Inteligencia Artificial.</div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+          <button type="button" class="btn btn-primary" id="saveSettingsBtn">Guardar Ajustes</button>
         </div>
       </div>
     </div>

@@ -121,6 +121,70 @@ document.addEventListener('DOMContentLoaded', async () => {
     btn.disabled = false;
   });
 
+  window.openDeleteUserModal = (userId, userName) => {
+    document.getElementById('deleteUserId').value = userId;
+    document.getElementById('deleteUserName').textContent = userName || 'este usuario';
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('userDeleteModal'));
+    modal.show();
+  };
+
+  document.getElementById('userDeleteBtn').addEventListener('click', async (e) => {
+    const btn = e.target;
+    btn.disabled = true;
+    
+    const target_user_id = document.getElementById('deleteUserId').value;
+
+    const { error } = await supabase.rpc('admin_delete_user', { target_user_id });
+
+    if (error) {
+      alert('Error al eliminar el usuario. Recuerda que debes crear primero la función SQL admin_delete_user en la base de datos.\\nDetalles: ' + error.message);
+    } else {
+      bootstrap.Modal.getInstance(document.getElementById('userDeleteModal')).hide();
+      await fetchAndRenderData();
+    }
+    
+    btn.disabled = false;
+  });
+
+  // Settings Logic
+  document.getElementById('settingsBtn').addEventListener('click', async () => {
+    const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('settingsModal'));
+    
+    // Fetch current key
+    const { data, error } = await supabase
+      .from('app_settings')
+      .select('setting_value')
+      .eq('setting_key', 'gemini_api_key')
+      .single();
+      
+    if (!error && data) {
+      document.getElementById('geminiApiKey').value = data.setting_value;
+    }
+    
+    modal.show();
+  });
+
+  document.getElementById('saveSettingsBtn').addEventListener('click', async (e) => {
+    const btn = e.target;
+    btn.disabled = true;
+    
+    const newKey = document.getElementById('geminiApiKey').value.trim();
+    
+    const { error } = await supabase
+      .from('app_settings')
+      .update({ setting_value: newKey })
+      .eq('setting_key', 'gemini_api_key');
+      
+    if (error) {
+      alert('Error al guardar la clave. Asegúrate de ejecutar el script SQL en Supabase.\\n' + error.message);
+    } else {
+      alert('¡Ajustes guardados correctamente!');
+      bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
+    }
+    
+    btn.disabled = false;
+  });
+
   // Fetch users
   await fetchAndRenderData();
 });
@@ -176,7 +240,8 @@ function renderTable(searchQuery) {
       <td>${user.total_xp || 0} XP</td>
       <td class="d-print-none">
         <button class="btn btn-sm btn-outline-info me-1" onclick="openUserDetailModal('${user.user_id}', '${user.full_name || user.email || ''}')"><i class="bi bi-eye"></i> Detalle</button>
-        <button class="btn btn-sm btn-outline-primary" onclick="openEditUserModal('${user.user_id}')"><i class="bi bi-pencil"></i> Editar</button>
+        <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditUserModal('${user.user_id}')"><i class="bi bi-pencil"></i> Editar</button>
+        <button class="btn btn-sm btn-outline-danger" onclick="openDeleteUserModal('${user.user_id}', '${user.full_name || user.email || ''}')"><i class="bi bi-trash"></i> Eliminar</button>
       </td>
     `;
     tbody.appendChild(tr);

@@ -1,4 +1,4 @@
-import * as bootstrap from 'bootstrap';
+const bootstrap = window.bootstrap;
 import { supabase, requireAuth } from './supabase.js';
 
 let allUsers = [];

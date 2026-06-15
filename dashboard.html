@@ -88,9 +88,15 @@
 
         <h2>Lista de Usuarios</h2>
         <div class="d-flex align-items-center mb-3 d-print-none">
-          <input type="text" class="form-control w-50" id="searchInput"
-            placeholder="Buscar por nombre, correo o institución...">
-          <button class="btn btn-primary" onclick="window.print()"><i
+          <!-- Honeypot para engañar al autocompletado de Chrome -->
+          <div style="display:none;" aria-hidden="true">
+            <input type="text" name="fakeusernameremembered" tabindex="-1" />
+            <input type="password" name="fakepasswordremembered" tabindex="-1" />
+          </div>
+          <input type="text" autocomplete="off" class="form-control w-50" id="filtroTablaAdmin"
+            placeholder="Buscar por nombre, correo o institución..."
+            readonly onfocus="this.removeAttribute('readonly');">
+          <button class="btn btn-primary ms-3" onclick="window.print()"><i
               class="bi bi-file-earmark-pdf-fill text-danger"></i> Imprimir Reporte</button>
         </div>
         <div class="table-responsive">

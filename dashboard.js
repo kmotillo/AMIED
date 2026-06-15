@@ -15,19 +15,24 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   // Setup Search
-  document.getElementById('searchInput').addEventListener('input', (e) => {
-    renderTable(e.target.value);
-  });
+  const searchInputEl = document.getElementById('filtroTablaAdmin') || document.getElementById('searchInput');
+  if (searchInputEl) {
+    searchInputEl.addEventListener('input', (e) => {
+      renderTable(e.target.value);
+    });
+    // Limpiar el valor inicial para evitar el autocompletado persistente
+    setTimeout(() => { searchInputEl.value = ''; }, 100);
+  }
 
   window.openEditUserModal = (userId) => {
     const user = allUsers.find(u => u.user_id === userId);
     if (!user) return;
-    
+
     document.getElementById('editUserId').value = user.user_id;
     document.getElementById('editUserFullName').value = user.full_name || user.name || user.nombre || '';
     document.getElementById('editUserInstitution').value = user.institution || '';
     document.getElementById('editUserRole').value = user.role || 'student';
-    
+
     const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('userEditModal'));
     modal.show();
   };
@@ -36,7 +41,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     document.getElementById('userDetailTitle').textContent = `Progreso Detallado: ${userName || 'Usuario'}`;
     const body = document.getElementById('userDetailBody');
     body.innerHTML = '<div class="text-center py-4"><div class="spinner-border text-primary" role="status"></div></div>';
-    
+
     const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('userDetailModal'));
     modal.show();
 
@@ -99,7 +104,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     e.preventDefault();
     const btn = document.getElementById('userEditSubmitBtn');
     btn.disabled = true;
-    
+
     const target_user_id = document.getElementById('editUserId').value;
     const new_full_name = document.getElementById('editUserFullName').value;
     const new_institution = document.getElementById('editUserInstitution').value;
@@ -118,7 +123,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       bootstrap.Modal.getInstance(document.getElementById('userEditModal')).hide();
       await fetchAndRenderData();
     }
-    
+
     btn.disabled = false;
   });
 
@@ -132,7 +137,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   document.getElementById('userDeleteBtn').addEventListener('click', async (e) => {
     const btn = e.target;
     btn.disabled = true;
-    
+
     const target_user_id = document.getElementById('deleteUserId').value;
 
     const { error } = await supabase.rpc('admin_delete_user', { target_user_id });
@@ -143,46 +148,46 @@ document.addEventListener('DOMContentLoaded', async () => {
       bootstrap.Modal.getInstance(document.getElementById('userDeleteModal')).hide();
       await fetchAndRenderData();
     }
-    
+
     btn.disabled = false;
   });
 
   // Settings Logic
   document.getElementById('settingsBtn').addEventListener('click', async () => {
     const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('settingsModal'));
-    
+
     // Fetch current key
     const { data, error } = await supabase
       .from('app_settings')
       .select('setting_value')
       .eq('setting_key', 'gemini_api_key')
       .single();
-      
+
     if (!error && data) {
       document.getElementById('geminiApiKey').value = data.setting_value;
     }
-    
+
     modal.show();
   });
 
   document.getElementById('saveSettingsBtn').addEventListener('click', async (e) => {
     const btn = e.target;
     btn.disabled = true;
-    
+
     const newKey = document.getElementById('geminiApiKey').value.trim();
-    
+
     const { error } = await supabase
       .from('app_settings')
       .update({ setting_value: newKey })
       .eq('setting_key', 'gemini_api_key');
-      
+
     if (error) {
       alert('Error al guardar la clave. Asegúrate de ejecutar el script SQL en Supabase.\\n' + error.message);
     } else {
       alert('¡Ajustes guardados correctamente!');
       bootstrap.Modal.getInstance(document.getElementById('settingsModal')).hide();
     }
-    
+
     btn.disabled = false;
   });
 
@@ -192,7 +197,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 async function fetchAndRenderData() {
   const { data, error } = await supabase.rpc('get_all_users_progress');
-  
+
   if (error) {
     console.error('Error fetching users:', error);
     document.getElementById('usersTableBody').innerHTML = `<tr><td colspan="8" class="text-danger text-center">Error cargando datos: ${error.message}</td></tr>`;
@@ -200,7 +205,7 @@ async function fetchAndRenderData() {
   }
 
   allUsers = data || [];
-  
+
   // Render full table initially
   renderTable('');
   renderCharts();
@@ -211,7 +216,7 @@ function renderTable(searchQuery) {
   tbody.innerHTML = '';
 
   const q = searchQuery.toLowerCase();
-  
+
   let filtered = allUsers.filter(u => {
     const email = (u.email || '').toLowerCase();
     const name = (u.full_name || '').toLowerCase();
@@ -229,7 +234,7 @@ function renderTable(searchQuery) {
 
   filtered.forEach((user, index) => {
     const isStudent = user.role === 'student' || !user.role;
-    
+
     const tr = document.createElement('tr');
     tr.innerHTML = `
       <td>${index + 1}</td>
@@ -240,9 +245,9 @@ function renderTable(searchQuery) {
       <td class="fw-bold text-success">Lvl ${user.current_level || 1}</td>
       <td>${user.total_xp || 0} XP</td>
       <td class="d-print-none">
-        <button class="btn btn-sm btn-outline-info me-1" onclick="openUserDetailModal('${user.user_id}', '${user.full_name || user.email || ''}')"><i class="bi bi-eye"></i> Detalle</button>
-        <button class="btn btn-sm btn-outline-primary me-1" onclick="openEditUserModal('${user.user_id}')"><i class="bi bi-pencil"></i> Editar</button>
-        <button class="btn btn-sm btn-outline-danger" onclick="openDeleteUserModal('${user.user_id}', '${user.full_name || user.email || ''}')"><i class="bi bi-trash"></i> Eliminar</button>
+        <button type="button" class="btn btn-sm btn-outline-info me-1" onclick="openUserDetailModal('${user.user_id}', '${user.full_name || user.email || ''}')"><i class="bi bi-eye"></i> Detalle</button>
+        <button type="button" class="btn btn-sm btn-outline-primary me-1" onclick="openEditUserModal('${user.user_id}')"><i class="bi bi-pencil"></i> Editar</button>
+        <button type="button" class="btn btn-sm btn-outline-danger" onclick="openDeleteUserModal('${user.user_id}', '${user.full_name || user.email || ''}')"><i class="bi bi-trash"></i> Eliminar</button>
       </td>
     `;
     tbody.appendChild(tr);
@@ -251,13 +256,13 @@ function renderTable(searchQuery) {
 
 function renderCharts() {
   const students = allUsers.filter(u => u.role === 'student' || !u.role);
-  
+
   // BAR CHART: Top 5 XP
   const top5 = [...students].sort((a, b) => (b.total_xp || 0) - (a.total_xp || 0)).slice(0, 5);
   const barCtx = document.getElementById('barChart').getContext('2d');
-  
+
   if (barChartInstance) barChartInstance.destroy();
-  
+
   barChartInstance = new Chart(barCtx, {
     type: 'bar',
     data: {
@@ -286,7 +291,7 @@ function renderCharts() {
   });
 
   const pieCtx = document.getElementById('pieChart').getContext('2d');
-  
+
   if (pieChartInstance) pieChartInstance.destroy();
 
   pieChartInstance = new Chart(pieCtx, {

@@ -63,8 +63,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
 // --- LOAD DATA ---
 async function loadCourses() {
+  const previousScrollY = window.scrollY;
   document.getElementById('loadingIndicator').style.display = 'block';
-  document.getElementById('coursesAccordion').style.display = 'none';
 
   // Fetch courses with nested modules and lessons
   const { data, error } = await supabase
@@ -74,6 +74,7 @@ async function loadCourses() {
 
   if (error) {
     alert('Error cargando cursos: ' + error.message);
+    document.getElementById('loadingIndicator').style.display = 'none';
     return;
   }
 
@@ -95,7 +96,10 @@ async function loadCourses() {
 
   document.getElementById('loadingIndicator').style.display = 'none';
   document.getElementById('coursesAccordion').style.display = 'block';
+  window.scrollTo(0, previousScrollY);
 }
+
+window.expandedCourseId = null;
 
 function renderCoursesAccordion() {
   const container = document.getElementById('coursesAccordion');
@@ -107,8 +111,10 @@ function renderCoursesAccordion() {
   }
 
   coursesData.forEach((course, cIndex) => {
-    const isFirst = cIndex === 0;
-    
+    let isExpanded = false;
+    if (window.expandedCourseId === course.id) {
+      isExpanded = true;
+    }
     // Generar html para modulos
     let modulesHtml = '';
     if (course.modules && course.modules.length > 0) {
@@ -123,8 +129,8 @@ function renderCoursesAccordion() {
               <li class="list-group-item d-flex justify-content-between align-items-center bg-light">
                 <span>${lesson.order_index}. ${lesson.title}</span>
                 <div class="btn-group btn-group-sm">
-                  <button class="btn btn-outline-primary" onclick="openLessonModal('${course.id}', '${module.id}', '${lesson.id}')">Editar</button>
-                  <button class="btn btn-outline-danger" onclick="deleteLesson('${lesson.id}')">Eliminar</button>
+                  <button class="btn btn-outline-primary" onclick="openLessonModal('${course.id}', '${module.id}', '${lesson.id}')"><i class="bi bi-pencil-square"></i> Editar</button>
+                  <button class="btn btn-outline-danger" onclick="deleteLesson('${lesson.id}')"><i class="bi bi-trash"></i> Eliminar</button>
                 </div>
               </li>
             `;
@@ -141,10 +147,10 @@ function renderCoursesAccordion() {
                 <h6 class="mb-1">${module.title}</h6>
               </div>
               <div class="btn-group btn-group-sm">
-                <button class="btn btn-outline-secondary" onclick="openLessonModal('${course.id}', '${module.id}')">+ Lección</button>
-                <a href="quiz_editor.html?moduleId=${module.id}" class="btn btn-outline-success">Evalución</a>
-                <button class="btn btn-outline-primary" onclick="openModuleModal('${course.id}', '${module.id}')">Editar</button>
-                <button class="btn btn-outline-danger" onclick="deleteModule('${module.id}')">Eliminar</button>
+                <button class="btn btn-outline-secondary" onclick="openLessonModal('${course.id}', '${module.id}')"><i class="bi bi-file-earmark-plus"></i> + Lección</button>
+                <a href="quiz_editor.html?moduleId=${module.id}" class="btn btn-outline-success"><i class="bi bi-check2-square"></i> Evaluación</a>
+                <button class="btn btn-outline-primary" onclick="openModuleModal('${course.id}', '${module.id}')"><i class="bi bi-pencil-square"></i> Editar</button>
+                <button class="btn btn-outline-danger" onclick="deleteModule('${module.id}')"><i class="bi bi-trash"></i> Eliminar</button>
               </div>
             </div>
             ${lessonsHtml}
@@ -160,22 +166,27 @@ function renderCoursesAccordion() {
     item.className = 'accordion-item';
     item.innerHTML = `
       <h2 class="accordion-header" id="heading${cIndex}">
-        <button class="accordion-button ${isFirst ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${cIndex}" aria-expanded="${isFirst}" aria-controls="collapse${cIndex}">
+        <button class="accordion-button ${isExpanded ? '' : 'collapsed'}" type="button" data-bs-toggle="collapse" data-bs-target="#collapse${cIndex}" aria-expanded="${isExpanded}" aria-controls="collapse${cIndex}" onclick="window.expandedCourseId = '${course.id}'">
           <strong class="me-2">${course.title}</strong> <span class="badge bg-secondary rounded-pill">${course.modules ? course.modules.length : 0} Módulos</span>
         </button>
       </h2>
-      <div id="collapse${cIndex}" class="accordion-collapse collapse ${isFirst ? 'show' : ''}" aria-labelledby="heading${cIndex}" data-bs-parent="#coursesAccordion">
+      <div id="collapse${cIndex}" class="accordion-collapse collapse ${isExpanded ? 'show' : ''}" aria-labelledby="heading${cIndex}" data-bs-parent="#coursesAccordion">
         <div class="accordion-body">
           <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
             <p class="mb-0 text-muted">${course.description || 'Sin descripción'}</p>
             <div class="btn-group btn-group-sm">
-              <button class="btn btn-outline-info" onclick="exportCourse('${course.id}')">Exportar Curso</button>
-              <button class="btn btn-primary" onclick="openModuleModal('${course.id}')">+ Nuevo Módulo</button>
-              <button class="btn btn-outline-primary" onclick="openCourseModal('${course.id}')">Editar Curso</button>
-              <button class="btn btn-outline-danger" onclick="deleteCourse('${course.id}')">Eliminar Curso</button>
+              <button class="btn btn-outline-${course.is_published ? 'warning' : 'success'}" onclick="togglePublishCourse('${course.id}', ${!course.is_published})"><i class="bi bi-${course.is_published ? 'eye-slash' : 'eye'}"></i> ${course.is_published ? 'Ocultar' : 'Publicar'} Curso</button>
+              <button class="btn btn-outline-info" onclick="exportCourse('${course.id}')"><i class="bi bi-download"></i> Exportar Curso</button>
+              <button class="btn btn-outline-primary" onclick="openCourseModal('${course.id}')"><i class="bi bi-pencil-square"></i> Editar Curso</button>
+              <button class="btn btn-outline-danger" onclick="deleteCourse('${course.id}')"><i class="bi bi-trash"></i> Eliminar Curso</button>
             </div>
           </div>
           ${modulesHtml}
+          <div class="mt-3 border-top pt-3 d-grid">
+            <button class="btn btn-primary border-dashed" style="border-style: dashed; border-width: 2px;" onclick="openModuleModal('${course.id}')">
+              <i class="bi bi-folder-plus"></i> + Añadir Nuevo Módulo
+            </button>
+          </div>
         </div>
       </div>
     `;
@@ -284,7 +295,7 @@ async function handleCourseSubmit(e) {
   if (id) {
     await supabase.from('courses').update({ title, description, estimated_hours }).eq('id', id);
   } else {
-    await supabase.from('courses').insert({ title, description, estimated_hours });
+    await supabase.from('courses').insert({ title, description, estimated_hours, is_published: false });
   }
 
   bootstrap.Modal.getInstance(document.getElementById('courseModal')).hide();
@@ -343,6 +354,15 @@ async function handleLessonSubmit(e) {
   document.getElementById('lessonSubmitBtn').disabled = false;
   await loadCourses();
 }
+
+// --- PUBLISH HANDLER ---
+window.togglePublishCourse = async (id, publish) => {
+  if (confirm(`¿Estás seguro de ${publish ? 'publicar' : 'ocultar'} este curso? ${publish ? 'Aparecerá en la aplicación para todos los usuarios.' : 'Ya no estará disponible en la aplicación.'}`)) {
+    document.getElementById('loadingIndicator').style.display = 'block';
+    await supabase.from('courses').update({ is_published: publish }).eq('id', id);
+    await loadCourses();
+  }
+};
 
 // --- DELETE HANDLERS ---
 window.deleteCourse = async (id) => {
@@ -490,7 +510,8 @@ async function handleCourseImport(e) {
     const { data: newCourse, error: errCourse } = await supabase.from('courses').insert({
       title: data.course.title,
       description: data.course.description,
-      estimated_hours: data.course.estimated_hours
+      estimated_hours: data.course.estimated_hours,
+      is_published: false
     }).select().single();
     if (errCourse) throw errCourse;
 

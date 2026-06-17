@@ -5,6 +5,7 @@
   <title>Cursos - Docente Inclusivo Admin</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
   <link rel="stylesheet" href="/style.css">
 </head>
 <body>
@@ -94,8 +95,9 @@
             <input type="text" class="form-control" id="courseTitleInput" required>
           </div>
           <div class="mb-3">
-            <label for="courseDescInput" class="form-label">Descripción</label>
-            <textarea class="form-control" id="courseDescInput" rows="3"></textarea>
+            <label for="courseDescInput" class="form-label">Descripción (Markdown)</label>
+            <textarea class="form-control font-monospace" id="courseDescInput" rows="3"></textarea>
+            <div class="form-text">Usa sintaxis Markdown para dar formato. Ej: **negrita**, *cursiva*, viñetas (-).</div>
           </div>
           <div class="mb-3">
             <label for="courseHoursInput" class="form-label">Horas Estimadas</label>
@@ -127,7 +129,7 @@
             <label for="moduleTitleInput" class="form-label">Título del Módulo</label>
             <input type="text" class="form-control" id="moduleTitleInput" required>
           </div>
-          <div class="mb-3">
+          <div class="mb-3 d-none">
             <label for="moduleOrderInput" class="form-label">Orden</label>
             <input type="number" class="form-control" id="moduleOrderInput" value="1" required>
           </div>
@@ -154,11 +156,11 @@
           <input type="hidden" id="lessonModuleIdInput">
           <input type="hidden" id="lessonIdInput">
           <div class="row">
-            <div class="col-md-8 mb-3">
+            <div class="col-md-12 mb-3">
               <label for="lessonTitleInput" class="form-label">Título de la Lección</label>
               <input type="text" class="form-control" id="lessonTitleInput" required>
             </div>
-            <div class="col-md-4 mb-3">
+            <div class="col-md-4 mb-3 d-none">
               <label for="lessonOrderInput" class="form-label">Orden</label>
               <input type="number" class="form-control" id="lessonOrderInput" value="1" required>
             </div>

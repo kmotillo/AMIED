@@ -129,9 +129,13 @@ async function fetchAndRenderData() {
 
       const userQuizSet = userQuizCompletions[prog.user_id] || new Set();
       const courseQuizSet = courseQuizzesMap[prog.course_id] || new Set();
-
+      
+      let userPassedQuizzesInCourse = 0;
       courseQuizSet.forEach(mId => {
-        if (userQuizSet.has(mId)) completedItems++;
+        if (userQuizSet.has(mId)) {
+            completedItems++;
+            userPassedQuizzesInCourse++;
+        }
       });
 
       let progressPercentage = 0;
@@ -140,6 +144,13 @@ async function fetchAndRenderData() {
       } else {
         // If course has no items, consider it 0%
         progressPercentage = 0;
+      }
+      
+      // Salvaguarda explícita: si hay quizzes y el usuario no los ha pasado todos, nunca será 100%
+      if (courseQuizSet.size > 0 && userPassedQuizzesInCourse < courseQuizSet.size) {
+        if (progressPercentage >= 100) {
+            progressPercentage = 99;
+        }
       }
 
       const status = progressPercentage >= 100 ? 'completed' : 'in_progress';

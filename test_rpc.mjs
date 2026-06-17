@@ -6,7 +6,11 @@ const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 async function test() {
-  const { data, error } = await supabase.rpc('get_all_users_progress');
+  const { data, error } = await supabase
+    .from('pg_proc')
+    .select('*')
+    .eq('proname', 'get_all_users_progress');
+  
   if (error) {
     console.error(error);
   } else {

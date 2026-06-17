@@ -173,7 +173,7 @@ function renderCoursesAccordion() {
       <div id="collapse${cIndex}" class="accordion-collapse collapse ${isExpanded ? 'show' : ''}" aria-labelledby="heading${cIndex}" data-bs-parent="#coursesAccordion">
         <div class="accordion-body">
           <div class="d-flex justify-content-between mb-3 border-bottom pb-2">
-            <p class="mb-0 text-muted">${course.description || 'Sin descripción'}</p>
+            <div class="mb-0 text-muted markdown-body" style="font-size: 0.95rem;">${course.description ? marked.parse(course.description) : 'Sin descripción'}</div>
             <div class="btn-group btn-group-sm">
               <button class="btn btn-outline-${course.is_published ? 'warning' : 'success'}" onclick="togglePublishCourse('${course.id}', ${!course.is_published})"><i class="bi bi-${course.is_published ? 'eye-slash' : 'eye'}"></i> ${course.is_published ? 'Ocultar' : 'Publicar'} Curso</button>
               <button class="btn btn-outline-info" onclick="exportCourse('${course.id}')"><i class="bi bi-download"></i> Exportar Curso</button>

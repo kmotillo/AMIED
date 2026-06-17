@@ -205,7 +205,7 @@ function renderQuestions() {
     q.answers.forEach((a, aIndex) => {
       answersHtml += `
         <div class="input-group mb-2">
-          ${q.question_type === 'match_pairs' || q.question_type === 'fill_in_the_blank' ? '' : `
+          ${q.question_type === 'match_pairs' ? '' : `
           <div class="input-group-text">
             <input class="form-check-input mt-0" type="checkbox" ${a.is_correct ? 'checked' : ''} onchange="updateAnswer(${qIndex}, ${aIndex}, 'is_correct', this.checked)">
           </div>
@@ -213,7 +213,7 @@ function renderQuestions() {
           ${q.question_type === 'match_pairs' 
             ? `<input type="text" class="form-control" placeholder="Concepto" value="${(a.answer_text || '|').split('|')[0] || ''}" onchange="updateMatchAnswer(${qIndex}, ${aIndex}, 'concept', this.value)">
                <input type="text" class="form-control" placeholder="Definición" value="${(a.answer_text || '|').split('|').length > 1 ? a.answer_text.split('|').slice(1).join('|') : ''}" onchange="updateMatchAnswer(${qIndex}, ${aIndex}, 'definition', this.value)">`
-            : `<input type="text" class="form-control" placeholder="${q.question_type === 'fill_in_the_blank' ? 'Palabra válida (sinónimo)' : 'Respuesta'}" value="${a.answer_text}" ${q.question_type === 'true_false' ? 'readonly' : ''} onchange="updateAnswer(${qIndex}, ${aIndex}, 'answer_text', this.value)">`
+            : `<input type="text" class="form-control" placeholder="Respuesta" value="${a.answer_text}" ${q.question_type === 'true_false' ? 'readonly' : ''} onchange="updateAnswer(${qIndex}, ${aIndex}, 'answer_text', this.value)">`
           }
           ${q.question_type === 'match_pairs' ? '' : `<input type="text" class="form-control" placeholder="Feedback (opcional)" value="${a.feedback_text || ''}" onchange="updateAnswer(${qIndex}, ${aIndex}, 'feedback_text', this.value)">`}
           ${q.question_type !== 'true_false' ? `<button class="btn btn-outline-danger" type="button" onclick="removeAnswer(${qIndex}, ${aIndex})">X</button>` : ''}
@@ -229,20 +229,19 @@ function renderQuestions() {
       <div class="card-body">
         <div class="row mb-3">
           <div class="col-md-9">
-            <textarea class="form-control" rows="2" placeholder="${q.question_type === 'fill_in_the_blank' ? 'Ej: La capital de Francia es ___ (usa ___ para el espacio en blanco)' : 'Escribe la pregunta aquí...'}" onchange="updateQuestion(${qIndex}, 'question_text', this.value)">${q.question_text}</textarea>
+            <textarea class="form-control" rows="2" placeholder="Escribe la pregunta aquí..." onchange="updateQuestion(${qIndex}, 'question_text', this.value)">${q.question_text}</textarea>
           </div>
           <div class="col-md-3">
             <select class="form-select" onchange="changeQuestionType(${qIndex}, this.value)">
               <option value="multiple_choice" ${q.question_type === 'multiple_choice' ? 'selected' : ''}>Opción Múltiple</option>
               <option value="true_false" ${q.question_type === 'true_false' ? 'selected' : ''}>Verdadero / Falso</option>
               <option value="match_pairs" ${q.question_type === 'match_pairs' ? 'selected' : ''}>Relacionar Conceptos</option>
-              <option value="fill_in_the_blank" ${q.question_type === 'fill_in_the_blank' ? 'selected' : ''}>Completar Espacios</option>
             </select>
           </div>
         </div>
-        <h6>${q.question_type === 'match_pairs' ? 'Pares Concepto - Definición:' : q.question_type === 'fill_in_the_blank' ? 'Palabras correctas aceptadas (sinónimos):' : 'Opciones de Respuesta: (Marca las correctas)'}</h6>
+        <h6>${q.question_type === 'match_pairs' ? 'Pares Concepto - Definición:' : 'Opciones de Respuesta: (Marca las correctas)'}</h6>
         ${answersHtml}
-        ${q.question_type !== 'true_false' ? `<button class="btn btn-sm btn-outline-secondary mt-2" onclick="addAnswer(${qIndex})">${q.question_type === 'match_pairs' ? '+ Añadir Par' : q.question_type === 'fill_in_the_blank' ? '+ Añadir Palabra Válida' : '+ Añadir Opción'}</button>` : ''}
+        ${q.question_type !== 'true_false' ? `<button class="btn btn-sm btn-outline-secondary mt-2" onclick="addAnswer(${qIndex})">${q.question_type === 'match_pairs' ? '+ Añadir Par' : '+ Añadir Opción'}</button>` : ''}
       </div>
     `;
     container.appendChild(qDiv);
@@ -263,10 +262,6 @@ window.changeQuestionType = (qIndex, newType) => {
       { answer_text: 'Concepto 1|Definición 1', is_correct: true, feedback_text: '' },
       { answer_text: 'Concepto 2|Definición 2', is_correct: true, feedback_text: '' }
     ];
-  } else if (newType === 'fill_in_the_blank') {
-    questions[qIndex].answers = [
-      { answer_text: '', is_correct: true, feedback_text: '' }
-    ];
   }
   renderQuestions();
 };
@@ -282,8 +277,6 @@ window.updateMatchAnswer = (qIndex, aIndex, part, value) => {
 window.addAnswer = (qIndex) => { 
   if (questions[qIndex].question_type === 'match_pairs') {
     questions[qIndex].answers.push({ answer_text: 'Nuevo Concepto|Nueva Definición', is_correct: true, feedback_text: '' });
-  } else if (questions[qIndex].question_type === 'fill_in_the_blank') {
-    questions[qIndex].answers.push({ answer_text: '', is_correct: true, feedback_text: '' });
   } else {
     questions[qIndex].answers.push({ answer_text: '', is_correct: false, feedback_text: '' }); 
   }

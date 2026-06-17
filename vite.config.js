@@ -9,6 +9,7 @@ export default defineConfig({
         dashboard: resolve(__dirname, 'dashboard.html'),
         courses: resolve(__dirname, 'courses.html'),
         quiz_editor: resolve(__dirname, 'quiz_editor.html'),
+        reports: resolve(__dirname, 'reports.html'),
       },
     },
   },

@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "799148972871",
+    "project_id": "amied-26a7d",
+    "storage_bucket": "amied-26a7d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:799148972871:android:2b9b8eb3c271de11b20a62",
+        "android_client_info": {
+          "package_name": "com.example.amied_app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "YOUR_GOOGLE_API_KEY"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
